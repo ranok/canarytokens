@@ -138,6 +138,7 @@
                     <li data-type="qr_code"        class="token-item" data-memo-placeholder="QR code underneath Simon's phone batter"><a href="#" class="icon icon-qrcode"><span class="title">QR code</span><div class="explanation">Generate a QR code for physical tokens</div></a></li>
                     <li data-type="my_sql"         class="token-item" data-memo-placeholder="MySQL token in payments_db_dump.sql on SRV01"><a href="#" class="icon icon-mysql"><span class="title">MySQL dump</span><div class="explanation">Get alerted when a MySQL dump is loaded</div></a></li>
                     <li data-type="windows_dir"    class="token-item" data-memo-placeholder="Directory token placed in U:\Users\Sarah\CreditCardReports\"><a href="#" class="icon icon-folder"><span class="title">Windows folder</span><div class="explanation">Be notified when a Windows Folder is browsed in Windows Explorer</div></a></li>
+                    <li data-type="network_dir"    class="token-item" data-memo-placeholder="Network folder mounted to Z:"><a href="#" class="icon icon-webdav"><span class="title">Network mount</span><div class="explanation">Be notified when a mounted network share has its contents opened</div></a></li>
                     <li data-type="log4shell"      class="token-item" data-memo-placeholder="Placewhere log line is inserted"><a href="#" class="icon icon-log4shell"><span class="title">Log4Shell</span><div class="explanation">Alert when a log4j log line is vulnerable to CVE-2021-44228</div></a></li>
                     <li data-type="fast_redirect"  class="token-item" data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-redirect"><span class="title">Fast redirect</span><div class="explanation">Alert when a URL is visited, User is redirected</div></a></li>
                     <li data-type="slow_redirect"  class="token-item" data-memo-placeholder="URL within Dropbox"><a href="#" class="icon icon-redirect"><span class="title">Slow redirect</span><div class="explanation">Alert when a URL is visited, User is redirected (More info is grabbed!)</div></a></li>
@@ -175,6 +176,15 @@
                 </div>
                 <div class="field-optional field-cmd hidden">
                   <input class="form-control" type="text" tabindex=2 name="cmd_process" placeholder="Name of process to monitor (e.g. klist.exe)">
+                </div>
+                <div class="field-optional field-network_dir hidden">
+                  <select class="form-control" tabindex=2 name="fs_type">
+                    <option value="">Choose a filesystem type</option>
+                    <option value="it">IT administration</option>
+                    <option value="security">Cyber-security</option>
+                    <option value="defense">Defense industry</option>
+                    <option value="medical">Medical industry</option>
+                  </select>
                 </div>
                 <div class="field-optional field-cloned_website hidden">
                   <input class="form-control" type="text" tabindex=2 name="clonedsite" placeholder="Domain of protected website (e.g. thinkst.com)">
@@ -317,6 +327,26 @@
                         <pre>tail -f /var/log/auth.log | awk '/Accepted publickey for/ { system("host k5198sfh3cw64rhdpm29oo4ga.canarytokens.com") }'</pre>
                       </li>
                       <li>Use as the domain part of an email address.</li>
+                    </ul>
+                  </p>
+                </div>
+              </div>              
+              <div class="result network_dir">
+                <h3>Your network mount token is active!</h3>
+                <div class="artifacts">
+                  <p>Copy this password to your clipboard and use as you wish:</p>
+                  <div class="form-control">
+                    {{ inputcopy('result_network_dir') }}
+                  </div>
+                  <p>Use any username with this password to mount the host: <code>https://datacloud.jacob-cb5.workers.dev/</code></p>
+                </div>
+                <div class="advice">
+                  <p>Remember, it gets triggered whenever someone opens a file in this mount.</p>
+                  <p><h5>Instructions for mounting:</h5>
+                    <ul>
+                      <li>Windows: Open Explorer, and right-click on the Network panel, then select Mount Network Drive...</li>
+                      <li>MacOS: blah blah</li>
+                      <li>Linux: blah blah</li>
                     </ul>
                   </p>
                 </div>
@@ -1145,6 +1175,17 @@ START REPLICA;
         return cmd.removeClass('error-outline').addClass('success-outline');
       }
 
+      var checkWebdav= function() {
+        fs_type = $('input[name=fs_type]');
+        if (! fs_type.parents('.field-network_dir').hasClass('hidden')) {
+          //only perform checks if field is visible. could be multiple checks
+          if (fs_type.val() == '') {
+            return fs_type.addClass('error-outline').removeClass('success-outline');
+          }
+        }
+        return fs_type.removeClass('error-outline').addClass('success-outline');
+      }
+
       var checkAzureIdCertName= function() {
         azure_id_cert_file_name = $('input[name=azure_id_cert_file_name]');
         if (! azure_id_cert_file_name.parents('.field-azure_id').hasClass('hidden')) {
@@ -1231,6 +1272,7 @@ START REPLICA;
         checkClonedWebsite();
         checkCSSClonedWebsite();
         checkCmd();
+        checkWebdav();
         checkAzureIdCertName();
         checkSQLServer();
 
@@ -1399,6 +1441,10 @@ START REPLICA;
           $('#result_dns').val(data['hostname']);
         };
 
+        var _handleWebDavResponse = function(data) {
+          $('#result_network_dir').val(data['webdav_password']);
+        };
+
         var _handleCCResponse = function(data) {
           let exp = data['expiration'].split('/')
           let month = exp[0]
@@ -1473,6 +1519,10 @@ START REPLICA;
 
         var _handleClonedWebsiteRequest = function(form) {
           $('input[name=type]').val('clonedsite');
+          return new FormData(form[0]);
+        }
+        var _handleWebDavRequest = function(form) {
+          $('input[name=type]').val('webdav');
           return new FormData(form[0]);
         }
         var _handleCSSClonedWebsiteRequest = function(form) {
@@ -1591,6 +1641,7 @@ START REPLICA;
                                   'entra_cloned_website': _handleEntraClonedWebsiteRequest,
                                   'css_cloned_website': _handleCSSClonedWebsiteRequest,
                                   'sql_server': _handleSqlServerRequest,
+                                  'network_dir': _handleWebDavRequest,
                                   'default':   _handleDefaultRequest};
 
         var _responseCallbacks = {'web': _handleWebResponse,
@@ -1604,6 +1655,7 @@ START REPLICA;
                                   'cc': _handleCCResponse,
                                   'adobe_pdf' : _handleFileDownloadResponse,
                                   'windows_dir' : _handleFileDownloadResponse,
+                                  'network_dir': _handleWebDavResponse,
                                   'cloned_website' : _handleClonedWebsiteResponse,
                                   'css_cloned_website' : _handleCSSClonedWebsiteResponse,
                                   'entra_cloned_website': _handleEntraClonedWebsiteResponse,

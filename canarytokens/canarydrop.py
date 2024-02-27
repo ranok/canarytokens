@@ -18,6 +18,7 @@ from hashlib import md5
 from pathlib import Path
 from urllib.parse import quote
 from typing import Any, Literal, Optional, Union
+from webdav import FsType
 
 from pydantic import BaseModel, Field, parse_obj_as, root_validator
 
@@ -110,6 +111,8 @@ class Canarydrop(BaseModel):
     file_name: Optional[str]
     # CSS cloned site stuff
     expected_referrer: Optional[str]
+    # WebDAV specific stuff
+    fs_type: Optional[FsType]
 
     # AWS key specific stuff
     aws_access_key_id: Optional[str]

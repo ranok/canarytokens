@@ -1,0 +1,43 @@
+from canarytokens.settings import FrontendSettings
+
+settings = FrontendSettings()
+
+import requests, json
+from typing import Optional
+from enum import Enum
+from hashlib import sha1
+
+ACCOUNT_ID = settings.CLOUDFLARE_ACCOUNT_ID
+NAMESPACE_ID = settings.CLOUDFLARE_NAMESPACE
+
+# Matches the keys in the worker's fs.js
+class FsType(str, Enum):
+    TESTING = 'testing'
+    SECURITY = 'security'
+    DEFENSE = 'defense'
+    MEDICAL = 'medical'
+    IT = 'it'
+
+def generate_webdav_password(token_id : str, server_domain : str = settings.DOMAINS[0]) -> str:
+    return sha1((server_domain + token_id).encode()).hexdigest()
+
+def insert_webdav_token(password : str, alert_url : str, fs_type : Optional[FsType] = None, custom_fs : Optional[str] = None) -> bool:
+    '''
+    Inserts a token config into the Cloudflare KV store
+    Returns: True if successful, False otherwise
+    '''
+    api_cred = settings.CLOUDFLARE_API_TOKEN
+    value = {'token_url': alert_url}
+    if fs_type != None:
+        value['fs_template'] = f'{fs_type}'
+    if custom_fs != None:
+        value['custom_fs'] = custom_fs
+
+    fd = {'value': json.dumps(value), 'metadata': '{}'}
+    put_url = f'https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/storage/kv/namespaces/{NAMESPACE_ID}/values/{password}'
+    res = requests.put(put_url, files=fd, headers={'Authorization': 'Bearer ' + api_cred})
+    if res.status_code == 200:
+        return True
+    else:
+        print(res.text)
+        return False

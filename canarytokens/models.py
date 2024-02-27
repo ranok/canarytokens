@@ -288,6 +288,7 @@ class TokenTypes(str, enum.Enum):
     ADOBE_PDF = "adobe_pdf"
     WIREGUARD = "wireguard"
     WINDOWS_DIR = "windows_dir"
+    WEBDAV = "webdav"
     CLONEDSITE = "clonedsite"
     CSSCLONEDSITE = "cssclonedsite"
     QR_CODE = "qr_code"
@@ -330,6 +331,7 @@ readable_token_type_names = {
     TokenTypes.ADOBE_PDF: "Adobe PDF",
     TokenTypes.WIREGUARD: "WireGuard",
     TokenTypes.WINDOWS_DIR: "Windows folder",
+    TokenTypes.WEBDAV: "Network folder",
     TokenTypes.CLONEDSITE: "cloned website",
     TokenTypes.CSSCLONEDSITE: "CSS cloned website",
     TokenTypes.QR_CODE: "QR code",
@@ -668,6 +670,16 @@ class SQLServerTokenRequest(TokenRequest):
 class WindowsDirectoryTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.WINDOWS_DIR] = TokenTypes.WINDOWS_DIR
 
+class WebDavTokenRequest(TokenRequest):
+    token_type: Literal[TokenTypes.WEBDAV] = TokenTypes.WEBDAV
+    fs_type: str
+
+    @validator("fs_type")
+    def check_fs_type(value: str):
+        from webdav import FsType
+        if not value in FsType.__members__.keys():
+            raise ValueError(f"fs_type must be in the FsType enum. Given: {value}")
+        return value
 
 AnyTokenRequest = Annotated[
     Union[
@@ -684,6 +696,7 @@ AnyTokenRequest = Annotated[
         ClonedWebTokenRequest,
         CSSClonedWebTokenRequest,
         WindowsDirectoryTokenRequest,
+        WebDavTokenRequest,
         WebBugTokenRequest,
         SlowRedirectTokenRequest,
         MySQLTokenRequest,
@@ -933,6 +946,9 @@ class Log4ShellTokenResponse(TokenResponse):
 class WindowsDirectoryTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.WINDOWS_DIR] = TokenTypes.WINDOWS_DIR
 
+class WebDavTokenResponse(TokenResponse):
+    token_type: Literal[TokenTypes.WEBDAV] = TokenTypes.WEBDAV
+    webdav_password: str 
 
 class SMTPTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.SMTP] = TokenTypes.SMTP
@@ -985,6 +1001,7 @@ AnyTokenResponse = Annotated[
         MySQLTokenResponse,
         WireguardTokenResponse,
         WindowsDirectoryTokenResponse,
+        WebDavTokenResponse,
         FastRedirectTokenResponse,
         ClonedWebTokenResponse,
         CSSClonedWebTokenResponse,
@@ -1200,6 +1217,7 @@ class AdditionalInfo(BaseModel):
     mysql_client: Optional[dict[str, list[str]]]
     r: Optional[list[str]]
     l: Optional[list[str]]
+    file_path: Optional[list[str]]
 
     def serialize_for_v2(self) -> dict:
         data = json_safe_dict(self)
@@ -1478,6 +1496,11 @@ class WindowsDirectoryTokenHit(TokenHit):
     token_type: Literal[TokenTypes.WINDOWS_DIR] = TokenTypes.WINDOWS_DIR
     src_data: Optional[dict]
 
+class WebDavTokenHit(TokenHit):
+    token_type: Literal[TokenTypes.WEBDAV] = TokenTypes.WEBDAV
+    request_headers: Optional[dict]
+    request_args: Optional[dict]
+    additional_info: AdditionalInfo = AdditionalInfo()
 
 class MsExcelDocumentTokenHit(TokenHit):
     token_type: Literal[TokenTypes.MS_EXCEL] = TokenTypes.MS_EXCEL
@@ -1590,6 +1613,7 @@ AnyTokenHit = Annotated[
         FastRedirectTokenHit,
         SMTPTokenHit,
         WebBugTokenHit,
+        WebDavTokenHit,
         MySQLTokenHit,
         WireguardTokenHit,
         QRCodeTokenHit,
@@ -1726,6 +1750,9 @@ class WindowsDirectoryTokenHistory(TokenHistory[WindowsDirectoryTokenHit]):
     token_type: Literal[TokenTypes.WINDOWS_DIR] = TokenTypes.WINDOWS_DIR
     hits: List[WindowsDirectoryTokenHit] = []
 
+class WebDavTokenHistory(TokenHistory[WebDavTokenHit]):
+    token_type: Literal[TokenTypes.WEBDAV] = TokenTypes.WEBDAV
+    hits: List[WebDavTokenHit] = []
 
 class CustomBinaryTokenHistory(TokenHistory[CustomBinaryTokenHit]):
     token_type: Literal[TokenTypes.SIGNED_EXE] = TokenTypes.SIGNED_EXE
@@ -1821,6 +1848,7 @@ AnyTokenHistory = Annotated[
         SlowRedirectTokenHistory,
         FastRedirectTokenHistory,
         WebBugTokenHistory,
+        WebDavTokenHistory,
         CustomBinaryTokenHistory,
         WireguardTokenHistory,
         QRCodeTokenHistory,

@@ -124,6 +124,8 @@ from canarytokens.models import (
     TokenTypes,
     WebBugTokenRequest,
     WebBugTokenResponse,
+    WebDavTokenRequest,
+    WebDavTokenResponse,
     WindowsDirectoryTokenRequest,
     WindowsDirectoryTokenResponse,
     WireguardTokenRequest,
@@ -133,6 +135,7 @@ from canarytokens.msexcel import make_canary_msexcel
 from canarytokens.msword import make_canary_msword
 from canarytokens.mysql import make_canary_mysql_dump
 from canarytokens.azure_css import install_azure_css
+from canarytokens.webdav import generate_webdav_password, insert_webdav_token, FsType
 from canarytokens.pdfgen import make_canary_pdf
 from canarytokens.queries import (
     add_canary_domain,
@@ -1136,6 +1139,27 @@ def _create_azure_id_token_response(
         cert_name=canarydrop.cert_name,
     )
 
+
+@create_response.register
+def _(
+    token_request_details: WebDavTokenRequest, canarydrop: Canarydrop
+) -> WebDavTokenResponse:
+    canarydrop.fs_type = FsType(token_request_details.fs_type)
+    queries.save_canarydrop(canarydrop=canarydrop)
+    pw = generate_webdav_password(canarydrop.canarytoken.value())
+    insert_webdav_token(pw, canarydrop.get_url([canary_http_channel]), canarydrop.fs_type)
+    return WebDavTokenResponse(
+        email=canarydrop.alert_email_recipient or "",
+        webhook_url=canarydrop.alert_webhook_url
+        if canarydrop.alert_webhook_url
+        else "",
+        token=canarydrop.canarytoken.value(),
+        token_url=canarydrop.get_url([canary_http_channel]),
+        auth_token=canarydrop.auth,
+        hostname=canarydrop.get_hostname(),
+        url_components=list(canarydrop.get_url_components()),
+        webdav_password=pw
+    )
 
 @create_response.register
 def _(

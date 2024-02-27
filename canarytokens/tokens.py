@@ -28,6 +28,7 @@ from canarytokens.models import (
     AWSKeyTokenHit,
     AzureIDTokenHit,
     SlackAPITokenHit,
+    WebDavTokenHit,
     TokenTypes,
 )
 
@@ -476,6 +477,27 @@ class Canarytoken(object):
             "referrer": r_arg,
         }
         return http_general_info, src_data
+
+    @staticmethod
+    def _get_info_for_webdav(request: Request):
+        http_general_info = Canarytoken._grab_http_general_info(request=request)
+
+        client_ip = request.getHeader("X-Client-Ip")
+        http_general_info["src_ip"] = client_ip
+        http_general_info["is_tor_relay"] = queries.is_tor_relay(client_ip)
+        file_path = request.getHeader('X-Alert-Path')
+        additional_info = {
+            'file_path': file_path
+        }
+        http_general_info['additional_info'] = additional_info
+        return WebDavTokenHit(**http_general_info)
+
+    @staticmethod
+    def _get_response_for_webdav(
+        canarydrop: canarydrop.Canarydrop, request: Request
+    ):
+        request.setHeader("Content-Type", "image/gif")
+        return GIF
 
     @staticmethod
     def _get_response_for_cssclonedsite(
