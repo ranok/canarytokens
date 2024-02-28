@@ -18,7 +18,7 @@ from hashlib import md5
 from pathlib import Path
 from urllib.parse import quote
 from typing import Any, Literal, Optional, Union
-from webdav import FsType
+from canarytokens.webdav import FsType
 
 from pydantic import BaseModel, Field, parse_obj_as, root_validator
 

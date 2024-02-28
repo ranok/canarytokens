@@ -670,16 +670,19 @@ class SQLServerTokenRequest(TokenRequest):
 class WindowsDirectoryTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.WINDOWS_DIR] = TokenTypes.WINDOWS_DIR
 
+
 class WebDavTokenRequest(TokenRequest):
     token_type: Literal[TokenTypes.WEBDAV] = TokenTypes.WEBDAV
     fs_type: str
 
     @validator("fs_type")
     def check_fs_type(value: str):
-        from webdav import FsType
+        from canarytokens.webdav import FsType
+
         if not value in FsType.__members__.keys():
             raise ValueError(f"fs_type must be in the FsType enum. Given: {value}")
         return value
+
 
 AnyTokenRequest = Annotated[
     Union[
@@ -946,9 +949,11 @@ class Log4ShellTokenResponse(TokenResponse):
 class WindowsDirectoryTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.WINDOWS_DIR] = TokenTypes.WINDOWS_DIR
 
+
 class WebDavTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.WEBDAV] = TokenTypes.WEBDAV
-    webdav_password: str 
+    webdav_password: str
+
 
 class SMTPTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.SMTP] = TokenTypes.SMTP
@@ -1496,11 +1501,13 @@ class WindowsDirectoryTokenHit(TokenHit):
     token_type: Literal[TokenTypes.WINDOWS_DIR] = TokenTypes.WINDOWS_DIR
     src_data: Optional[dict]
 
+
 class WebDavTokenHit(TokenHit):
     token_type: Literal[TokenTypes.WEBDAV] = TokenTypes.WEBDAV
     request_headers: Optional[dict]
     request_args: Optional[dict]
     additional_info: AdditionalInfo = AdditionalInfo()
+
 
 class MsExcelDocumentTokenHit(TokenHit):
     token_type: Literal[TokenTypes.MS_EXCEL] = TokenTypes.MS_EXCEL
@@ -1750,9 +1757,11 @@ class WindowsDirectoryTokenHistory(TokenHistory[WindowsDirectoryTokenHit]):
     token_type: Literal[TokenTypes.WINDOWS_DIR] = TokenTypes.WINDOWS_DIR
     hits: List[WindowsDirectoryTokenHit] = []
 
+
 class WebDavTokenHistory(TokenHistory[WebDavTokenHit]):
     token_type: Literal[TokenTypes.WEBDAV] = TokenTypes.WEBDAV
     hits: List[WebDavTokenHit] = []
+
 
 class CustomBinaryTokenHistory(TokenHistory[CustomBinaryTokenHit]):
     token_type: Literal[TokenTypes.SIGNED_EXE] = TokenTypes.SIGNED_EXE
