@@ -679,7 +679,7 @@ class WebDavTokenRequest(TokenRequest):
     def check_fs_type(value: str):
         from canarytokens.webdav import FsType
 
-        if not value in FsType.__members__.keys():
+        if not value.upper() in FsType.__members__.keys():
             raise ValueError(f"fs_type must be in the FsType enum. Given: {value}")
         return value
 
