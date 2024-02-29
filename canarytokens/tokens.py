@@ -6,6 +6,7 @@ import json
 import random
 import re
 from datetime import datetime
+from urllib.parse import unquote
 from functools import cache
 from typing import Any, AnyStr, Match, Optional
 
@@ -485,7 +486,7 @@ class Canarytoken(object):
         http_general_info["src_ip"] = client_ip
         http_general_info["is_tor_relay"] = queries.is_tor_relay(client_ip)
         file_path = request.getHeader("X-Alert-Path")
-        src_data = {"file_path": file_path}
+        src_data = {"file_path": unquote(file_path)}
         return http_general_info, src_data
 
     @staticmethod
