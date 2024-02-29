@@ -1443,7 +1443,7 @@ START REPLICA;
 
         var _handleWebDavResponse = function(data) {
           $('#result_network_dir').val(data['webdav_password']);
-          $('webdav-server-url').text(data['webdav_server'])
+          $('#webdav-server-url').text(data['webdav_server'])
         };
 
         var _handleCCResponse = function(data) {
