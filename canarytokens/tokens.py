@@ -28,7 +28,6 @@ from canarytokens.models import (
     AWSKeyTokenHit,
     AzureIDTokenHit,
     SlackAPITokenHit,
-    WebDavTokenHit,
     TokenTypes,
 )
 

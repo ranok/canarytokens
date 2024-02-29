@@ -1505,9 +1505,7 @@ class WindowsDirectoryTokenHit(TokenHit):
 
 class WebDavTokenHit(TokenHit):
     token_type: Literal[TokenTypes.WEBDAV] = TokenTypes.WEBDAV
-    request_headers: Optional[dict]
-    request_args: Optional[dict]
-    additional_info: AdditionalInfo = AdditionalInfo()
+    file_path: Optional[str]
 
 
 class MsExcelDocumentTokenHit(TokenHit):

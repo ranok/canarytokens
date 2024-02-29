@@ -221,13 +221,13 @@
           field not in ['geo_info','is_tor_relay','additional_info','secretkeeper_photo'] %}
       {% if field not in ['src_ip','input_channel'] %}
               <tr class="info_row">
-        {% if canarydrop['triggered_list'][item][field] is iterable and 'useragent' in canarydrop['triggered_list'][item][field] %}
+        {% if field == 'useragent' %}
                 <tr class="info_row">
                   <td>
                     User-agent
                   </td>
                   <td>
-                    {{ canarydrop['triggered_list'][item][field]['useragent']|e }}
+                    {{ canarydrop['triggered_list'][item][field]|e }}
                   </td>
                 </tr>
         {% endif %}
@@ -315,7 +315,7 @@
                   {{ canarydrop['triggered_list'][item][field]['cmd_computer_name']|e }}
                 </td>
               </tr>
-        {% elif canarydrop['triggered_list'][item][field] %}
+        {% elif canarydrop['triggered_list'][item][field] and field not in ['useragent'] %}
               <tr class="info_row">
                 <td>
                   {{field}}
