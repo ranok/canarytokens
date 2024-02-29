@@ -486,10 +486,8 @@ class Canarytoken(object):
         http_general_info["src_ip"] = client_ip
         http_general_info["is_tor_relay"] = queries.is_tor_relay(client_ip)
         file_path = request.getHeader("X-Alert-Path")
-        additional_info = {"file_path": [file_path]}
-        http_general_info["additional_info"] = additional_info
-        http_general_info["input_channel"] = INPUT_CHANNEL_HTTP
-        return WebDavTokenHit(**http_general_info)
+        src_data = {"file_path": file_path}
+        return http_general_info, src_data
 
     @staticmethod
     def _get_response_for_webdav(canarydrop: canarydrop.Canarydrop, request: Request):
