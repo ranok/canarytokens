@@ -953,6 +953,7 @@ class WindowsDirectoryTokenResponse(TokenResponse):
 class WebDavTokenResponse(TokenResponse):
     token_type: Literal[TokenTypes.WEBDAV] = TokenTypes.WEBDAV
     webdav_password: str
+    webdav_server: str
 
 
 class SMTPTokenResponse(TokenResponse):

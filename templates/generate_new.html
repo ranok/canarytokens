@@ -338,7 +338,7 @@
                   <div class="form-control">
                     {{ inputcopy('result_network_dir') }}
                   </div>
-                  <p>Use any username with this password to mount the host: <code>https://datacloud.jacob-cb5.workers.dev/</code></p>
+                  <p>Use any username with this password to mount the host: <code id="webdav-server-url"></code></p>
                 </div>
                 <div class="advice">
                   <p>Remember, it gets triggered whenever someone opens a file in this mount.</p>
@@ -1443,6 +1443,7 @@ START REPLICA;
 
         var _handleWebDavResponse = function(data) {
           $('#result_network_dir').val(data['webdav_password']);
+          $('webdav-server-url').text(data['webdav_server'])
         };
 
         var _handleCCResponse = function(data) {

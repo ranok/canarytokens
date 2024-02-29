@@ -1147,7 +1147,9 @@ def _(
     canarydrop.fs_type = FsType(token_request_details.fs_type)
     queries.save_canarydrop(canarydrop=canarydrop)
     pw = generate_webdav_password(canarydrop.canarytoken.value())
-    insert_webdav_token(pw, canarydrop.get_url([canary_http_channel]), canarydrop.fs_type)
+    insert_webdav_token(
+        pw, canarydrop.get_url([canary_http_channel]), canarydrop.fs_type
+    )
     return WebDavTokenResponse(
         email=canarydrop.alert_email_recipient or "",
         webhook_url=canarydrop.alert_webhook_url
@@ -1158,8 +1160,10 @@ def _(
         auth_token=canarydrop.auth,
         hostname=canarydrop.get_hostname(),
         url_components=list(canarydrop.get_url_components()),
-        webdav_password=pw
+        webdav_password=pw,
+        webdav_server=frontend_settings.WEBDAV_SERVER,
     )
+
 
 @create_response.register
 def _(

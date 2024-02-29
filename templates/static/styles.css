@@ -1109,6 +1109,9 @@ a.icon-wireguard:before {
 a.icon-folder:before {
   background-image: url("/resources/folder.png");
 }
+a.icon-webdav:before {
+  background-image: url("/resources/network_dir.png");
+}
 a.icon-exe:before {
   background-image: url("/resources/exe.png");
 }
