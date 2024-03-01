@@ -128,6 +128,7 @@ class CanarytokenPage(InputChannel, resource.Resource):
             canarydrop, request
         )
         request.setHeader("Server", "Apache")
+        request.setHeader("Cache-Control", "no-store")
         return resp
 
     def render_OPTIONS(self, request: Request):
