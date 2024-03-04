@@ -344,8 +344,14 @@
                   <p>Remember, it gets triggered whenever someone opens a file in this mount.</p>
                   <p><h5>Instructions for mounting:</h5>
                     <ul>
-                      <li>Windows: Open Explorer, and right-click on the Network panel, then select Mount Network Drive...</li>
-                      <li>MacOS: blah blah</li>
+                      <li>Windows: Open a command prompt (Windows + R: cmd.exe),<br /> enter the following two commands: 
+                        <code>
+                          cmdkey /add:datacloudsecure.com /user:USERNAME_HERE /pass:PASSWORD_HERE
+                          NET USE * \\datacloudsecure.com@SSL\DavWWWRoot /persistent:yes
+                        </code><br />Now you can rename the mount by right-clicking on it in Explorer and entering a better name.</li>
+                      <li>MacOS: Use the Cmd-K combo to open the Connect to Server prompt. 
+                        Enter the hostname from above, and click connect, then enter a username of your choosing, and the password for the token. 
+                        Save the credentials to the Keychain. If you want to mount to reconnect at startup, in System Settings -> General -> Open at Login, click the '+' to add a new item, navigate to the newly-mounted folder, and select it, then click Open.</li>
                       <li>Linux: blah blah</li>
                     </ul>
                   </p>
